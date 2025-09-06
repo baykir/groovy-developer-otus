@@ -1,0 +1,2 @@
+rootProject.name = 'groovy-developer-otus'
+include 'hw01-gradle'
