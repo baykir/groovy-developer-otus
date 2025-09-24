@@ -4,8 +4,7 @@ class ATM {
 
     void deposit(Map <Integer, Integer> cash) {
         cash.each {key, value ->
-            println "$key: $value"
-            banknotes[key] = value
+            banknotes[key] = (banknotes.getOrDefault(key, 0) + value)
         }
     }
 
@@ -14,15 +13,12 @@ class ATM {
             return null
         }
         List sortedBanknotes = banknotes.keySet().sort().reverse()
-        sortedBanknotes.each { element ->
-            println element
-        }
 
         def withdrawCash = [:]
 
         int delta = amount
         sortedBanknotes.each {element ->
-            int availableBanknote = banknotes.get(element)
+            int availableBanknote = banknotes.get(element) ?: 0
             if (availableBanknote == 0) {
                 return
             }
@@ -59,6 +55,21 @@ class ATM {
             sum += key * value
         }
         return sum
+    }
 
+    ATM plus (Map<Integer, Integer> cash){
+        //Переопределенный метод для более удобного внесения
+        deposit(cash)
+        return this
+    }
+
+    Map<Integer, Integer> minus(int amount){
+        //Переопределенный метод для более удобного снятия
+        return withdraw(amount)
+    }
+
+    @Override
+    String toString() {
+        return "ATM{balance=${balance()}, banknotes=${banknotes}"
     }
 }
