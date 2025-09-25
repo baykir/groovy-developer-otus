@@ -10,7 +10,7 @@ class ATM {
 
     Map <Integer, Integer> withdraw(int amount) {
         if(balance() < amount) {
-            return null
+            throw new IllegalArgumentException("No enough cash")
         }
         List sortedBanknotes = banknotes.keySet().sort().reverse()
 
@@ -39,7 +39,7 @@ class ATM {
                 delta -= element * getBanknotesAmount
             }
             if (delta != 0) {
-                return null
+                throw new IllegalArgumentException("No suitable banknotes")
             }
         }
 
