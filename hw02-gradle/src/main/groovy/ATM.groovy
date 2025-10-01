@@ -1,75 +1,81 @@
 class ATM {
-    private final Map <Integer, Integer> banknotes = [:]
+    final SortedMap <Integer, BanknoteCell> atm
 
+    ATM(List<Integer> denominations) {
+        this.atm = new TreeMap<Integer,BanknoteCell> ({
+            a, b -> b <=> a
+        })
+        denominations.each {denomination ->
+            atm.put(denomination, new BanknoteCell(denomination))
+        }
+    }
 
-    void deposit(Map <Integer, Integer> cash) {
+    void deposit(int denomination, int count) {
+        atm[denomination] + count
+    }
+
+    ATM plus(Map<Integer, Integer> cash) {
         cash.each {key, value ->
-            banknotes[key] = (banknotes.getOrDefault(key, 0) + value)
+            deposit(key, value)
         }
+        return this
     }
 
-    Map <Integer, Integer> withdraw(int amount) {
-        if(balance() < amount) {
-            throw new IllegalArgumentException("No enough cash")
-        }
-        List sortedBanknotes = banknotes.keySet().sort().reverse()
-
-        def withdrawCash = [:]
-
-        int delta = amount
-        sortedBanknotes.each {element ->
-            int availableBanknote = banknotes.get(element) ?: 0
-            if (availableBanknote == 0) {
-                return
-            }
-            if (amount < element){
-                return
-            }
-            int banknotesAmount = delta / element
-            int getBanknotesAmount = 0
-            if (banknotesAmount > 0) {
-                if (availableBanknote > banknotesAmount) {
-                    getBanknotesAmount = banknotesAmount
-                } else {
-                    getBanknotesAmount = availableBanknote
-                }
-            }
-            if (getBanknotesAmount > 0) {
-                withdrawCash[element] = getBanknotesAmount
-                delta -= element * getBanknotesAmount
-            }
-            if (delta != 0) {
-                throw new IllegalArgumentException("No suitable banknotes")
-            }
-        }
-
-        withdrawCash.each {key, value ->
-            banknotes[key] -= value
-        }
-        return withdrawCash
+    ATM minus(int requestedAmount) {
+        withdraw(requestedAmount)
+        return this
     }
 
-    int balance(){
-        int sum = 0
-        banknotes.each { key, value ->
-            sum += key * value
+    String toString(){
+        return "ATM balance: ${balance()} RUB"
+    }
+
+    int balance() {
+        def sum = atm.values().sum {
+            it.cellAmount
         }
         return sum
     }
 
-    ATM plus (Map<Integer, Integer> cash){
-        //Переопределенный метод для более удобного внесения
-        deposit(cash)
-        return this
-    }
+    Map<Integer, Integer> withdraw(int requestedAmount) {
+        if (balance() < requestedAmount) {
+            throw new IllegalArgumentException("No enough cash")
+        }
 
-    Map<Integer, Integer> minus(int amount){
-        //Переопределенный метод для более удобного снятия
-        return withdraw(amount)
-    }
+        def withdrawCash =[:]
+        int delta = requestedAmount
 
-    @Override
-    String toString() {
-        return "ATM{balance=${balance()}, banknotes=${banknotes}"
+        atm.each {it ->
+            int availableBanknotes = it.value.count
+            if (availableBanknotes == 0) {
+                return
+            }
+            if (requestedAmount < it.key) {
+                return
+            }
+            int banknotesAmount = (delta / it.key)
+            int getBanknotesAmount = 0
+            if (banknotesAmount > 0) {
+                if (availableBanknotes > banknotesAmount) {
+                    getBanknotesAmount = banknotesAmount
+                } else {
+                    getBanknotesAmount = availableBanknotes
+                }
+            }
+            if (getBanknotesAmount > 0) {
+                withdrawCash[it.key] = getBanknotesAmount
+                delta -= it.key * getBanknotesAmount
+            }
+        }
+
+        if (delta != 0) {
+            throw new IllegalArgumentException("No suitable banknotes")
+        }
+
+        withdrawCash.each { key, value ->
+            atm[key] -= value
+        }
+
+        return withdrawCash
     }
 }
