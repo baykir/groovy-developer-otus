@@ -4,18 +4,31 @@ import java.time.LocalDateTime
 
 class Action {
     private int id
-    private String description
-    private LocalDateTime starDateTime, endDateTime
+    private Task task
+    private String name
+    private LocalDateTime startDateTime, endDateTime
 
-    Action(int id, String description, LocalDateTime starDateTime, LocalDateTime endDateTime) {
+    Action(int id, String name, LocalDateTime startDateTime, LocalDateTime endDateTime) {
         this.id = id
-        this.description = description
-        this.starDateTime = starDateTime
+        this.name = name
+        this.startDateTime = startDateTime
         this.endDateTime = endDateTime
+    }
+
+    Action(int id, Task task, String name, LocalDateTime startDateTime, LocalDateTime endDateTime) {
+        this.id = id
+        task.addAction(this)
+        this.name = name
+        this.startDateTime = startDateTime
+        this.endDateTime = endDateTime
+    }
+
+    String getName() {
+        return name
     }
 
     @Override
     String toString(){
-        return "Action $description begin at: $starDateTime, end at: $endDateTime"
+        return "Action $name begin at: $startDateTime, end at: $endDateTime"
     }
 }

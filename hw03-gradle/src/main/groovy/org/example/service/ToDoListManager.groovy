@@ -28,7 +28,7 @@ class ToDoListManager {
         }
     }
 
-    def addAction(taskId, Action action) {
+    def addAction(int taskId, Action action) {
         def task = taskStore.findSpecific(taskId)
         //todo проверить action на валидность по времени с другими action
         task.addAction(action)
